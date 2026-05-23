@@ -18,6 +18,7 @@ const useGameStore = create((set, get) => ({
   totalHiddenCosts: 0,
   housesWon: 0,
   backupMode: false,
+  tutorialStep: 0,
 
   setPhase: (phase) => set({ phase }),
 
@@ -41,6 +42,15 @@ const useGameStore = create((set, get) => ({
       currentOffer: { ...initialOffer },
     })),
 
+  nextTutorialStep: () =>
+    set((state) => ({ tutorialStep: state.tutorialStep + 1 })),
+
+  prevTutorialStep: () =>
+    set((state) => ({ tutorialStep: Math.max(0, state.tutorialStep - 1) })),
+
+  skipTutorial: () =>
+    set({ phase: 'preapproval', tutorialStep: 0 }),
+
   resetGame: () =>
     set({
       phase: 'start',
@@ -51,6 +61,7 @@ const useGameStore = create((set, get) => ({
       totalHiddenCosts: 0,
       housesWon: 0,
       backupMode: false,
+      tutorialStep: 0,
     }),
 }))
 

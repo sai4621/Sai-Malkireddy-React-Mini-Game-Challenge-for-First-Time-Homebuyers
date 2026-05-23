@@ -116,9 +116,9 @@ function StatTile({ label, value, highlight = false }) {
 }
 
 const STATUS_ICON = {
-  good:  <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" strokeWidth={1.75} />,
-  under: <AlertCircle  className="w-5 h-5 text-amber-400  flex-shrink-0 mt-0.5" strokeWidth={1.75} />,
-  bad:   <XCircle      className="w-5 h-5 text-red-400    flex-shrink-0 mt-0.5" strokeWidth={1.75} />,
+  good:  <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" strokeWidth={1.75} />,
+  under: <AlertCircle  className="w-5 h-5 text-amber-400  shrink-0 mt-0.5" strokeWidth={1.75} />,
+  bad:   <XCircle      className="w-5 h-5 text-red-400    shrink-0 mt-0.5" strokeWidth={1.75} />,
 }
 
 function TacticRow({ tactic, isLast }) {

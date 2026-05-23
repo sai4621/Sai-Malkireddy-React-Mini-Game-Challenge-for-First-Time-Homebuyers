@@ -1,88 +1,18 @@
 import { useState, useEffect, useRef } from 'react'
-import { Clock, AlertTriangle, Info } from 'lucide-react'
+import { Clock, Info } from 'lucide-react'
 import useGameStore from '../store/gameStore'
 import houses from '../data/houses'
 import rounds from '../data/rounds'
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-const fmt = (n) =>
-  new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n)
-
-const trackFill = (value, min, max) => ({
-  background: `linear-gradient(to right,#0f172a ${((value - min) / (max - min)) * 100}%,#e2e8f0 ${((value - min) / (max - min)) * 100}%)`,
-})
+import { fmt, RangeSlider, PillGroup } from './levers/shared'
+import PriceSlider from './levers/PriceSlider'
+import EarnestMoneySlider from './levers/EarnestMoneySlider'
+import InspectionToggle from './levers/InspectionToggle'
+import AppraisalToggle from './levers/AppraisalToggle'
+import FinancingToggle from './levers/FinancingToggle'
+import ClosingDaysSlider from './levers/ClosingDaysSlider'
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
-function RangeSlider({ min, max, step = 1, value, onChange, label }) {
-  return (
-    <input
-      type="range"
-      min={min}
-      max={max}
-      step={step}
-      value={value}
-      onChange={(e) => onChange(Number(e.target.value))}
-      style={trackFill(value, min, max)}
-      aria-label={label}
-      aria-valuemin={min}
-      aria-valuemax={max}
-      aria-valuenow={value}
-      className="
-        w-full h-2 rounded-full cursor-pointer appearance-none
-        focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-700 focus-visible:ring-offset-2
-        [&::-webkit-slider-thumb]:appearance-none
-        [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5
-        [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-slate-900
-        [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow
-        [&::-webkit-slider-thumb]:transition-transform
-        [&::-webkit-slider-thumb]:hover:scale-110 [&::-webkit-slider-thumb]:active:scale-125
-        [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5
-        [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-slate-900 [&::-moz-range-thumb]:cursor-pointer
-      "
-    />
-  )
-}
-
-// Connected pill-style toggle group
-function PillGroup({ options, value, onChange, disabled = false, disabledReason }) {
-  return (
-    <div className="flex flex-col gap-2">
-      <div
-        role="group"
-        className={`inline-flex rounded-xl border border-slate-200 overflow-hidden ${disabled ? 'opacity-40 pointer-events-none' : ''}`}
-      >
-        {options.map((opt, i) => (
-          <button
-            key={opt.value}
-            type="button"
-            onClick={() => onChange(opt.value)}
-            aria-pressed={value === opt.value}
-            className={[
-              'px-4 py-2 text-sm font-medium transition-colors',
-              'focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-slate-700',
-              i > 0 ? 'border-l border-slate-200' : '',
-              value === opt.value
-                ? 'bg-slate-900 text-white'
-                : 'bg-white text-slate-600 hover:bg-slate-50 cursor-pointer',
-            ].join(' ')}
-          >
-            {opt.label}
-          </button>
-        ))}
-      </div>
-      {disabled && disabledReason && (
-        <span className="flex items-center gap-1.5 text-xs text-amber-600 font-medium" role="note">
-          <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0" strokeWidth={2} />
-          {disabledReason}
-        </span>
-      )}
-    </div>
-  )
-}
-
-// Single lever row — label + optional contextual hint + control slot
 function LeverRow({ label, hint, children }) {
   return (
     <div className="py-5 border-b border-slate-100 last:border-0">
@@ -91,6 +21,36 @@ function LeverRow({ label, hint, children }) {
         {hint && <p className="text-xs font-medium text-slate-400 ml-4 text-right">{hint}</p>}
       </div>
       {children}
+    </div>
+  )
+}
+
+function EscalationCapSlider({ offerPrice, askingPrice, escalationCap, setEscalationCap, capAutoAdjusted }) {
+  const capMin = offerPrice + 2500
+  const capMax = Math.round(askingPrice * 1.20 / 1000) * 1000
+  return (
+    <div className="mt-5">
+      <p className="text-xs text-slate-500 mb-2">
+        Beat any competing offer by $2,500 — up to a cap of:
+      </p>
+      <RangeSlider
+        label="Escalation clause cap"
+        min={capMin}
+        max={capMax}
+        step={1000}
+        value={Math.max(escalationCap, capMin)}
+        onChange={setEscalationCap}
+      />
+      <div className="flex justify-between items-baseline mt-2">
+        <span className="text-xs text-slate-400">{fmt(capMin)}</span>
+        <span className="text-sm font-semibold text-slate-900">Cap: {fmt(escalationCap)}</span>
+        <span className="text-xs text-slate-400">{fmt(capMax)}</span>
+      </div>
+      {capAutoAdjusted && (
+        <p className="text-xs text-amber-600 mt-2" role="alert">
+          Cap adjusted — must be at least $2,500 above your offer price.
+        </p>
+      )}
     </div>
   )
 }
@@ -298,75 +258,31 @@ export default function OfferComposer() {
               label="Offer Price"
               hint={`${priceSign}${priceDelta.toFixed(1)}% vs. asking`}
             >
-              <RangeSlider
-                label="Offer price"
-                min={Math.round(house.askingPrice * 0.95 / 1000) * 1000}
-                max={Math.round(house.askingPrice * 1.20 / 1000) * 1000}
-                step={1000}
-                value={offerPrice}
-                onChange={setOfferPrice}
-              />
-              <div className="flex justify-between items-baseline mt-2">
-                <span className="text-xs text-slate-400">{fmt(house.askingPrice * 0.95)}</span>
-                <span className="text-2xl font-bold text-slate-900">{fmt(offerPrice)}</span>
-                <span className="text-xs text-slate-400">{fmt(house.askingPrice * 1.20)}</span>
-              </div>
+              <PriceSlider value={offerPrice} onChange={setOfferPrice} askingPrice={house.askingPrice} />
             </LeverRow>
 
             {/* b) Earnest Money */}
-            <LeverRow label="Earnest Money" hint={fmt(earnestAmt)}>
-              <RangeSlider
-                label="Earnest money percentage"
-                min={1}
-                max={10}
-                step={0.5}
-                value={earnestPct}
-                onChange={setEarnestPct}
-              />
-              <div className="flex justify-between items-baseline mt-2">
-                <span className="text-xs text-slate-400">1%</span>
-                <span className="text-sm font-semibold text-slate-900">{earnestPct}% of offer</span>
-                <span className="text-xs text-slate-400">10%</span>
-              </div>
+            <LeverRow label="Earnest Money">
+              <EarnestMoneySlider value={earnestPct} onChange={setEarnestPct} offerPrice={offerPrice} />
             </LeverRow>
 
             {/* c) Inspection Contingency */}
             <LeverRow label="Inspection Contingency">
-              <PillGroup
-                value={inspection}
-                onChange={setInspection}
-                options={[
-                  { value: 'standard', label: 'Standard' },
-                  { value: '3day',     label: '3-Day' },
-                  { value: 'waived',   label: 'Waived' },
-                ]}
-              />
+              <InspectionToggle value={inspection} onChange={setInspection} />
             </LeverRow>
 
             {/* d) Appraisal Contingency */}
             <LeverRow label="Appraisal Contingency">
-              <PillGroup
-                value={appraisal}
-                onChange={setAppraisal}
-                options={[
-                  { value: 'standard', label: 'Standard' },
-                  { value: 'gap',      label: 'Gap Guarantee' },
-                  { value: 'waived',   label: 'Waived' },
-                ]}
-              />
+              <AppraisalToggle value={appraisal} onChange={setAppraisal} />
             </LeverRow>
 
-            {/* e) Financing Contingency — disabled for prequalified */}
+            {/* e) Financing Contingency */}
             <LeverRow label="Financing Contingency">
-              <PillGroup
+              <FinancingToggle
                 value={financing}
                 onChange={setFinancing}
                 disabled={financingPosture === 'prequalified'}
                 disabledReason="Requires pre-approval or cash to waive"
-                options={[
-                  { value: 'standard', label: 'Standard' },
-                  { value: 'waived',   label: 'Waived' },
-                ]}
               />
             </LeverRow>
 
@@ -379,19 +295,7 @@ export default function OfferComposer() {
                   : 'Extended'
               }
             >
-              <RangeSlider
-                label="Closing timeline in days"
-                min={minClose}
-                max={60}
-                step={1}
-                value={closingDays}
-                onChange={setClosingDays}
-              />
-              <div className="flex justify-between items-baseline mt-2">
-                <span className="text-xs text-slate-400">{minClose} days</span>
-                <span className="text-sm font-semibold text-slate-900">{closingDays} days</span>
-                <span className="text-xs text-slate-400">60 days</span>
-              </div>
+              <ClosingDaysSlider value={closingDays} onChange={setClosingDays} minClose={minClose} />
             </LeverRow>
 
             {/* g) Escalation Clause */}
@@ -405,29 +309,13 @@ export default function OfferComposer() {
                 ]}
               />
               {escalationOn && (
-                <div className="mt-5">
-                  <p className="text-xs text-slate-500 mb-2">
-                    Beat any competing offer by $2,500 — up to a cap of:
-                  </p>
-                  <RangeSlider
-                    label="Escalation clause cap"
-                    min={offerPrice + 2500}
-                    max={Math.round(house.askingPrice * 1.20 / 1000) * 1000}
-                    step={1000}
-                    value={Math.max(escalationCap, offerPrice + 2500)}
-                    onChange={setEscalationCap}
-                  />
-                  <div className="flex justify-between items-baseline mt-2">
-                    <span className="text-xs text-slate-400">{fmt(offerPrice + 2500)}</span>
-                    <span className="text-sm font-semibold text-slate-900">Cap: {fmt(escalationCap)}</span>
-                    <span className="text-xs text-slate-400">{fmt(house.askingPrice * 1.20)}</span>
-                  </div>
-                  {capAutoAdjusted && (
-                    <p className="text-xs text-amber-600 mt-2" role="alert">
-                      Cap adjusted — must be at least $2,500 above your offer price.
-                    </p>
-                  )}
-                </div>
+                <EscalationCapSlider
+                  offerPrice={offerPrice}
+                  askingPrice={house.askingPrice}
+                  escalationCap={escalationCap}
+                  setEscalationCap={setEscalationCap}
+                  capAutoAdjusted={capAutoAdjusted}
+                />
               )}
             </LeverRow>
 

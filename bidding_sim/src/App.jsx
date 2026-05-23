@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import useGameStore from './store/gameStore'
 import StartScreen from './components/StartScreen'
+import TutorialScreen from './components/TutorialScreen'
 import PreapprovalScreen from './components/PreapprovalScreen'
 import HouseIntroCard from './components/HouseIntroCard'
 import OfferComposer from './components/OfferComposer'
@@ -11,6 +12,7 @@ import EndScreen from './components/EndScreen'
 
 const SCREENS = {
   'start':        StartScreen,
+  'tutorial':     TutorialScreen,
   'preapproval':  PreapprovalScreen,
   'house-intro':  HouseIntroCard,
   'compose':      OfferComposer,
