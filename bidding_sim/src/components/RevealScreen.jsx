@@ -7,6 +7,7 @@ import sellers from '../data/sellers'
 import competitorData from '../data/competitors'
 import rounds from '../data/rounds'
 import { determineWinner, evaluateConsequences } from '../utils/scoring'
+import PhaserCanvas from './PhaserCanvas'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -137,6 +138,7 @@ export default function RevealScreen() {
   const [result, setResult]                 = useState(null)
   const [competitorOffers, setCompOffers]   = useState([])
   const [consequences, setConsequences]     = useState({ hiddenCosts: 0, consequenceText: null })
+  const [phaserDone, setPhaserDone]         = useState(false)
   const didSubmit = useRef(false)
 
   useEffect(() => {
@@ -198,11 +200,22 @@ export default function RevealScreen() {
 
   const rowCount = rows.length
 
-  // Delays: table rows staggered 150ms each, then story cards afterward
-  const tableEndDelay   = (rowCount - 1) * 0.15 + 0.28   // when last row finishes
-  const reasoningDelay  = tableEndDelay + 0.08
-  const lessonDelay     = reasoningDelay + 0.18
-  const buttonDelay     = lessonDelay + 0.18
+  // Table rows keep their staggered delays (they animate in alongside Phaser).
+  // Reasoning/lesson/button mount only after phaserDone — delays are from that moment.
+  const tableEndDelay = (rowCount - 1) * 0.15 + 0.28
+
+  // Phaser offer data
+  const phaserOffers = rows.map((row) => {
+    const scoreEntry = result.allScores.find((s) => s.id === row.id)
+    return {
+      id:       row.id,
+      name:     row.isPlayer ? 'YOU' : row.name,
+      isPlayer: row.isPlayer,
+      score:    scoreEntry?.score ?? 0,
+      isWinner: result.winnerId === row.id,
+      price:    row.offer.price,
+    }
+  })
 
   function handleContinue() {
     if (hasConsequences) {
@@ -229,9 +242,15 @@ export default function RevealScreen() {
           <h1 className="text-3xl font-bold tracking-tight text-slate-900">The Offers</h1>
         </div>
 
-        {/* ── Offers table ────────────────────────────────────────────── */}
+        {/* ── Phaser animated reveal ──────────────────────────────────── */}
+        <PhaserCanvas
+          offers={phaserOffers}
+          onComplete={() => setPhaserDone(true)}
+        />
+
+        {/* ── Offers table — text reference ───────────────────────────── */}
         <div className="overflow-x-auto -mx-2 px-2">
-        <div className="min-w-[640px] bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="min-w-160 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
           <HeaderRow />
           {rows.map((row, i) => {
             const scoreEntry = result.allScores.find((s) => s.id === row.id)
@@ -248,73 +267,77 @@ export default function RevealScreen() {
         </div>
         </div>
 
-        {/* ── Seller's reasoning ──────────────────────────────────────── */}
-        <motion.div
-          initial={{ opacity: 0, y: 18 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: reasoningDelay, duration: 0.32, ease: 'easeOut' }}
-          className="bg-white rounded-2xl border border-slate-200 shadow-sm p-7"
-        >
-          <div className="flex items-start gap-5">
-            <div className={`w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 ${avatarClass}`}>
-              <User className="w-5 h-5" strokeWidth={1.75} />
-            </div>
+        {/* ── Story cards — revealed after Phaser animation ───────────── */}
+          {phaserDone && (
+            <>
+              {/* Seller's reasoning */}
+              <motion.div
+                initial={{ opacity: 0, y: 18 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0, duration: 0.3, ease: 'easeOut' }}
+                className="bg-white rounded-2xl border border-slate-200 shadow-sm p-7"
+              >
+                <div className="flex items-start gap-5">
+                  <div className={`w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 ${avatarClass}`}>
+                    <User className="w-5 h-5" strokeWidth={1.75} />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[11px] font-semibold tracking-[0.14em] uppercase text-slate-400 mb-0.5">
+                      The seller chose
+                    </p>
+                    <p className="text-base font-bold text-slate-900 mb-4">
+                      {winnerName}
+                      <span className="font-normal text-slate-500 ml-2 text-sm">— {seller.displayName}</span>
+                    </p>
+                    <blockquote className="font-serif italic text-[15px] leading-[1.85] text-slate-600 border-l-2 border-slate-200 pl-5">
+                      {seller.reasoning}
+                    </blockquote>
+                  </div>
+                </div>
+              </motion.div>
 
-            <div className="min-w-0">
-              <p className="text-[11px] font-semibold tracking-[0.14em] uppercase text-slate-400 mb-0.5">
-                The seller chose
-              </p>
-              <p className="text-base font-bold text-slate-900 mb-4">
-                {winnerName}
-                <span className="font-normal text-slate-500 ml-2 text-sm">— {seller.displayName}</span>
-              </p>
-              <blockquote className="font-serif italic text-[15px] leading-[1.85] text-slate-600 border-l-2 border-slate-200 pl-5">
-                {seller.reasoning}
-              </blockquote>
-            </div>
-          </div>
-        </motion.div>
+              {/* Lesson card */}
+              <motion.div
+                initial={{ opacity: 0, y: 18 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.14, duration: 0.3, ease: 'easeOut' }}
+                className="bg-blue-50 border border-blue-200 rounded-2xl px-7 py-6 flex items-start gap-4"
+              >
+                <BookOpen className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" strokeWidth={1.75} />
+                <div>
+                  <p className="text-[11px] font-semibold tracking-[0.14em] uppercase text-blue-500 mb-1.5">
+                    What this taught you
+                  </p>
+                  <p className="text-[15px] font-semibold text-blue-900 leading-relaxed">
+                    {seller.lesson}
+                  </p>
+                </div>
+              </motion.div>
 
-        {/* ── Lesson card ──────────────────────────────────────────────── */}
-        <motion.div
-          initial={{ opacity: 0, y: 18 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: lessonDelay, duration: 0.32, ease: 'easeOut' }}
-          className="bg-blue-50 border border-blue-200 rounded-2xl px-7 py-6 flex items-start gap-4"
-        >
-          <BookOpen className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" strokeWidth={1.75} />
-          <div>
-            <p className="text-[11px] font-semibold tracking-[0.14em] uppercase text-blue-500 mb-1.5">
-              What this taught you
-            </p>
-            <p className="text-[15px] font-semibold text-blue-900 leading-relaxed">
-              {seller.lesson}
-            </p>
-          </div>
-        </motion.div>
-
-        {/* ── Continue ─────────────────────────────────────────────────── */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: buttonDelay, duration: 0.3 }}
-          className="flex justify-center pt-2"
-        >
-          <button
-            type="button"
-            onClick={handleContinue}
-            className="inline-flex items-center gap-3 bg-slate-900 text-white px-10 py-4 rounded-xl text-sm font-semibold uppercase tracking-wide hover:bg-slate-800 active:scale-[0.98] transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-700 focus-visible:ring-offset-2"
-          >
-            {hasConsequences
-              ? 'Continue'
-              : isLastRound && !playerWon
-              ? 'Explore Backup Offer'
-              : isLastRound
-              ? 'See Final Score'
-              : 'Next Round'}
-            <ArrowRight className="w-4 h-4" strokeWidth={2.5} />
-          </button>
-        </motion.div>
+              {/* Continue button */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.28, duration: 0.25 }}
+                className="flex justify-center pt-2"
+              >
+                <button
+                  type="button"
+                  onClick={handleContinue}
+                  className="inline-flex items-center gap-3 bg-slate-900 text-white px-10 py-4 rounded-xl text-sm font-semibold uppercase tracking-wide hover:bg-slate-800 active:scale-[0.98] transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-700 focus-visible:ring-offset-2"
+                >
+                  {hasConsequences
+                    ? 'Continue'
+                    : isLastRound && !playerWon
+                    ? 'Explore Backup Offer'
+                    : isLastRound
+                    ? 'See Final Score'
+                    : 'Next Round'}
+                  <ArrowRight className="w-4 h-4" strokeWidth={2.5} />
+                </button>
+              </motion.div>
+            </>
+          )}
 
       </div>
     </div>
