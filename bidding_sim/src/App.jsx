@@ -1,36 +1,27 @@
 import useGameStore from './store/gameStore'
+import StartScreen from './components/StartScreen'
+import PreapprovalScreen from './components/PreapprovalScreen'
 
-const PHASES = ['start', 'preapproval', 'house-intro', 'compose', 'reveal', 'consequence', 'end']
-
-function App() {
+export default function App() {
   const phase = useGameStore((s) => s.phase)
-  const setPhase = useGameStore((s) => s.setPhase)
 
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold mb-4">Bidding War — phase: {phase}</h1>
-
-      {phase === 'start' && <div data-phase="start">Start placeholder</div>}
-      {phase === 'preapproval' && <div data-phase="preapproval">Pre-approval placeholder</div>}
-      {phase === 'house-intro' && <div data-phase="house-intro">House intro placeholder</div>}
-      {phase === 'compose' && <div data-phase="compose">Compose offer placeholder</div>}
-      {phase === 'reveal' && <div data-phase="reveal">Reveal placeholder</div>}
-      {phase === 'consequence' && <div data-phase="consequence">Consequence placeholder</div>}
-      {phase === 'end' && <div data-phase="end">End placeholder</div>}
-
-      <div className="mt-6 flex flex-wrap gap-2">
-        {PHASES.map((p) => (
-          <button
-            key={p}
-            onClick={() => setPhase(p)}
-            className="px-3 py-1 bg-blue-600 text-white rounded text-sm"
-          >
-            {p}
-          </button>
-        ))}
-      </div>
-    </div>
+    <>
+      {phase === 'start'       && <StartScreen />}
+      {phase === 'preapproval' && <PreapprovalScreen />}
+      {phase === 'house-intro' && <Placeholder label="House Intro" />}
+      {phase === 'compose'     && <Placeholder label="Compose Offer" />}
+      {phase === 'reveal'      && <Placeholder label="Reveal" />}
+      {phase === 'consequence' && <Placeholder label="Consequence" />}
+      {phase === 'end'         && <Placeholder label="End" />}
+    </>
   )
 }
 
-export default App
+function Placeholder({ label }) {
+  return (
+    <div className="min-h-screen bg-stone-50 flex items-center justify-center">
+      <p className="text-slate-400 text-sm font-medium tracking-wide">{label} — coming soon</p>
+    </div>
+  )
+}
