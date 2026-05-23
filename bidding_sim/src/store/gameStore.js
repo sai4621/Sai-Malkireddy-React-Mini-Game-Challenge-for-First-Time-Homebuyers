@@ -4,7 +4,7 @@ const initialOffer = {
   price: 0,
   earnestMoney: 0,
   contingencies: [],
-  closingDate: null,
+  closingDays: 30,
   escalationClause: null,
   personalLetter: false,
 }

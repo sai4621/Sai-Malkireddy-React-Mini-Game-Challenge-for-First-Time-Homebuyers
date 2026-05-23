@@ -51,11 +51,13 @@ function StrengthPips({ level }) {
 export default function PreapprovalScreen() {
   const setFinancingPosture = useGameStore((s) => s.setFinancingPosture)
   const setPhase            = useGameStore((s) => s.setPhase)
+  const advanceRound        = useGameStore((s) => s.advanceRound)
   const [selected, setSelected] = useState(null)
 
   function handleContinue() {
     if (!selected) return
     setFinancingPosture(selected)
+    advanceRound()          // currentRound 0 → 1 (first house round)
     setPhase('house-intro')
   }
 

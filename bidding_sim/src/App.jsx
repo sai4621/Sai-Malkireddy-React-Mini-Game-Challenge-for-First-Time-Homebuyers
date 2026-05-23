@@ -1,6 +1,8 @@
 import useGameStore from './store/gameStore'
 import StartScreen from './components/StartScreen'
 import PreapprovalScreen from './components/PreapprovalScreen'
+import HouseIntroCard from './components/HouseIntroCard'
+import OfferComposer from './components/OfferComposer'
 
 export default function App() {
   const phase = useGameStore((s) => s.phase)
@@ -9,8 +11,8 @@ export default function App() {
     <>
       {phase === 'start'       && <StartScreen />}
       {phase === 'preapproval' && <PreapprovalScreen />}
-      {phase === 'house-intro' && <Placeholder label="House Intro" />}
-      {phase === 'compose'     && <Placeholder label="Compose Offer" />}
+      {phase === 'house-intro' && <HouseIntroCard />}
+      {phase === 'compose'     && <OfferComposer />}
       {phase === 'reveal'      && <Placeholder label="Reveal" />}
       {phase === 'consequence' && <Placeholder label="Consequence" />}
       {phase === 'end'         && <Placeholder label="End" />}
