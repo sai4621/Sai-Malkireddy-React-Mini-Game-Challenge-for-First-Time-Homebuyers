@@ -9,14 +9,13 @@ import rounds from '../data/rounds'
 const fmt = (n) =>
   new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n)
 
-// Inline style that fills the range track up to the thumb position
 const trackFill = (value, min, max) => ({
   background: `linear-gradient(to right,#0f172a ${((value - min) / (max - min)) * 100}%,#e2e8f0 ${((value - min) / (max - min)) * 100}%)`,
 })
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
-function RangeSlider({ min, max, step = 1, value, onChange }) {
+function RangeSlider({ min, max, step = 1, value, onChange, label }) {
   return (
     <input
       type="range"
@@ -26,8 +25,13 @@ function RangeSlider({ min, max, step = 1, value, onChange }) {
       value={value}
       onChange={(e) => onChange(Number(e.target.value))}
       style={trackFill(value, min, max)}
+      aria-label={label}
+      aria-valuemin={min}
+      aria-valuemax={max}
+      aria-valuenow={value}
       className="
         w-full h-2 rounded-full cursor-pointer appearance-none
+        focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-700 focus-visible:ring-offset-2
         [&::-webkit-slider-thumb]:appearance-none
         [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5
         [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-slate-900
@@ -42,27 +46,38 @@ function RangeSlider({ min, max, step = 1, value, onChange }) {
 }
 
 // Connected pill-style toggle group
-function PillGroup({ options, value, onChange, disabled = false }) {
+function PillGroup({ options, value, onChange, disabled = false, disabledReason }) {
   return (
-    <div
-      className={`inline-flex rounded-xl border border-slate-200 overflow-hidden ${disabled ? 'opacity-40 pointer-events-none' : ''}`}
-    >
-      {options.map((opt, i) => (
-        <button
-          key={opt.value}
-          type="button"
-          onClick={() => onChange(opt.value)}
-          className={[
-            'px-4 py-2 text-sm font-medium transition-colors',
-            i > 0 ? 'border-l border-slate-200' : '',
-            value === opt.value
-              ? 'bg-slate-900 text-white'
-              : 'bg-white text-slate-600 hover:bg-slate-50 cursor-pointer',
-          ].join(' ')}
-        >
-          {opt.label}
-        </button>
-      ))}
+    <div className="flex flex-col gap-2">
+      <div
+        role="group"
+        className={`inline-flex rounded-xl border border-slate-200 overflow-hidden ${disabled ? 'opacity-40 pointer-events-none' : ''}`}
+      >
+        {options.map((opt, i) => (
+          <button
+            key={opt.value}
+            type="button"
+            onClick={() => onChange(opt.value)}
+            aria-pressed={value === opt.value}
+            className={[
+              'px-4 py-2 text-sm font-medium transition-colors',
+              'focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-slate-700',
+              i > 0 ? 'border-l border-slate-200' : '',
+              value === opt.value
+                ? 'bg-slate-900 text-white'
+                : 'bg-white text-slate-600 hover:bg-slate-50 cursor-pointer',
+            ].join(' ')}
+          >
+            {opt.label}
+          </button>
+        ))}
+      </div>
+      {disabled && disabledReason && (
+        <span className="flex items-center gap-1.5 text-xs text-amber-600 font-medium" role="note">
+          <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0" strokeWidth={2} />
+          {disabledReason}
+        </span>
+      )}
     </div>
   )
 }
@@ -98,20 +113,27 @@ export default function OfferComposer() {
   // ── Offer levers (local state; pushed to store only on submit) ─────────────
   const [offerPrice,    setOfferPrice]    = useState(house.askingPrice)
   const [earnestPct,    setEarnestPct]    = useState(2)
-  const [inspection,    setInspection]    = useState('standard')   // standard | 3day | waived
-  const [appraisal,     setAppraisal]     = useState('standard')   // standard | gap  | waived
-  const [financing,     setFinancing]     = useState('standard')   // standard | waived
+  const [inspection,    setInspection]    = useState('standard')
+  const [appraisal,     setAppraisal]     = useState('standard')
+  const [financing,     setFinancing]     = useState('standard')
   const [closingDays,   setClosingDays]   = useState(30)
   const [escalationOn,  setEscalationOn]  = useState(false)
   const [escalationCap, setEscalationCap] = useState(
     Math.round(house.askingPrice * 1.10 / 1000) * 1000,
   )
+  const [capAutoAdjusted, setCapAutoAdjusted] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [timerLeft, setTimerLeft] = useState(round.timerSeconds ?? null)
 
   // Keep escalation cap above offerPrice when price slider moves
   useEffect(() => {
-    if (escalationCap < offerPrice + 2500) setEscalationCap(offerPrice + 2500)
+    if (escalationCap < offerPrice + 2500) {
+      setEscalationCap(offerPrice + 2500)
+      setCapAutoAdjusted(true)
+      const t = setTimeout(() => setCapAutoAdjusted(false), 2500)
+      return () => clearTimeout(t)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [offerPrice])
 
   // ── Derived values ─────────────────────────────────────────────────────────
@@ -163,16 +185,16 @@ export default function OfferComposer() {
     return () => clearTimeout(id)
   }, [timerLeft])
 
-  // Auto-submit when clock hits 0
   useEffect(() => {
     if (timerLeft === 0) submitRef.current(true)
   }, [timerLeft])
 
-  // Timer color: green → amber → red
+  // Timer color and pulse: green → amber → red; pulse at ≤5s
   const timerPct = round.timerSeconds ? timerLeft / round.timerSeconds : 1
   const timerColor =
     timerPct > 0.5 ? 'text-emerald-600' :
     timerPct > 0.2 ? 'text-amber-500'   : 'text-red-600'
+  const timerWarning = timerLeft !== null && timerLeft <= 5 && timerLeft > 0
 
   // ── Live offer letter ──────────────────────────────────────────────────────
   function buildLetter() {
@@ -210,11 +232,11 @@ export default function OfferComposer() {
 
       {/* Sticky header */}
       <div className="sticky top-0 z-20 bg-white border-b border-slate-200 shadow-sm">
-        <div className="max-w-5xl mx-auto px-6 h-16 flex items-center gap-4">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center gap-3 sm:gap-4">
           <img
             src={house.imageUrl}
             alt=""
-            className="w-14 h-10 rounded-lg object-cover flex-shrink-0"
+            className="w-12 sm:w-14 h-9 sm:h-10 rounded-lg object-cover flex-shrink-0"
           />
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold text-slate-900 truncate leading-tight">
@@ -225,7 +247,7 @@ export default function OfferComposer() {
 
           {/* Financing posture badge */}
           <span className={[
-            'flex-shrink-0 text-xs font-semibold px-3 py-1.5 rounded-full',
+            'flex-shrink-0 text-xs font-semibold px-2.5 sm:px-3 py-1.5 rounded-full',
             financingPosture === 'cash'        ? 'bg-emerald-100 text-emerald-800' :
             financingPosture === 'preapproved' ? 'bg-blue-100 text-blue-800'       :
                                                  'bg-slate-100 text-slate-600',
@@ -236,7 +258,15 @@ export default function OfferComposer() {
 
           {/* Timer */}
           {timerLeft !== null && (
-            <div className={`flex items-center gap-1.5 font-bold tabular-nums text-base flex-shrink-0 ${timerColor}`}>
+            <div
+              className={[
+                'flex items-center gap-1.5 font-bold tabular-nums text-base flex-shrink-0',
+                timerColor,
+                timerWarning ? 'animate-pulse' : '',
+              ].join(' ')}
+              aria-live="assertive"
+              aria-label={`Time remaining: ${Math.floor(timerLeft / 60)} minutes ${timerLeft % 60} seconds`}
+            >
               <Clock className="w-4 h-4" strokeWidth={2.5} />
               {Math.floor(timerLeft / 60)}:{String(timerLeft % 60).padStart(2, '0')}
             </div>
@@ -245,11 +275,11 @@ export default function OfferComposer() {
       </div>
 
       {/* Body */}
-      <div className="max-w-5xl mx-auto px-6 py-8">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
           {/* ── Levers column ─────────────────────────────────────────────── */}
-          <div className="lg:col-span-7 bg-white rounded-2xl border border-slate-200 shadow-sm px-6 py-1">
+          <div className="lg:col-span-7 bg-white rounded-2xl border border-slate-200 shadow-sm px-5 sm:px-6 py-1">
 
             {backupMode && (
               <div className="bg-blue-50 border border-blue-200 rounded-xl px-5 py-4 mt-5 mb-1 flex items-start gap-3">
@@ -269,6 +299,7 @@ export default function OfferComposer() {
               hint={`${priceSign}${priceDelta.toFixed(1)}% vs. asking`}
             >
               <RangeSlider
+                label="Offer price"
                 min={Math.round(house.askingPrice * 0.95 / 1000) * 1000}
                 max={Math.round(house.askingPrice * 1.20 / 1000) * 1000}
                 step={1000}
@@ -284,7 +315,14 @@ export default function OfferComposer() {
 
             {/* b) Earnest Money */}
             <LeverRow label="Earnest Money" hint={fmt(earnestAmt)}>
-              <RangeSlider min={1} max={10} step={0.5} value={earnestPct} onChange={setEarnestPct} />
+              <RangeSlider
+                label="Earnest money percentage"
+                min={1}
+                max={10}
+                step={0.5}
+                value={earnestPct}
+                onChange={setEarnestPct}
+              />
               <div className="flex justify-between items-baseline mt-2">
                 <span className="text-xs text-slate-400">1%</span>
                 <span className="text-sm font-semibold text-slate-900">{earnestPct}% of offer</span>
@@ -320,23 +358,16 @@ export default function OfferComposer() {
 
             {/* e) Financing Contingency — disabled for prequalified */}
             <LeverRow label="Financing Contingency">
-              <div className="flex flex-wrap items-center gap-3">
-                <PillGroup
-                  value={financing}
-                  onChange={setFinancing}
-                  disabled={financingPosture === 'prequalified'}
-                  options={[
-                    { value: 'standard', label: 'Standard' },
-                    { value: 'waived',   label: 'Waived' },
-                  ]}
-                />
-                {financingPosture === 'prequalified' && (
-                  <span className="flex items-center gap-1.5 text-xs text-amber-600 font-medium">
-                    <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0" strokeWidth={2} />
-                    Requires pre-approval or cash
-                  </span>
-                )}
-              </div>
+              <PillGroup
+                value={financing}
+                onChange={setFinancing}
+                disabled={financingPosture === 'prequalified'}
+                disabledReason="Requires pre-approval or cash to waive"
+                options={[
+                  { value: 'standard', label: 'Standard' },
+                  { value: 'waived',   label: 'Waived' },
+                ]}
+              />
             </LeverRow>
 
             {/* f) Closing Timeline */}
@@ -349,6 +380,7 @@ export default function OfferComposer() {
               }
             >
               <RangeSlider
+                label="Closing timeline in days"
                 min={minClose}
                 max={60}
                 step={1}
@@ -378,6 +410,7 @@ export default function OfferComposer() {
                     Beat any competing offer by $2,500 — up to a cap of:
                   </p>
                   <RangeSlider
+                    label="Escalation clause cap"
                     min={offerPrice + 2500}
                     max={Math.round(house.askingPrice * 1.20 / 1000) * 1000}
                     step={1000}
@@ -389,6 +422,11 @@ export default function OfferComposer() {
                     <span className="text-sm font-semibold text-slate-900">Cap: {fmt(escalationCap)}</span>
                     <span className="text-xs text-slate-400">{fmt(house.askingPrice * 1.20)}</span>
                   </div>
+                  {capAutoAdjusted && (
+                    <p className="text-xs text-amber-600 mt-2" role="alert">
+                      Cap adjusted — must be at least $2,500 above your offer price.
+                    </p>
+                  )}
                 </div>
               )}
             </LeverRow>
@@ -409,7 +447,13 @@ export default function OfferComposer() {
               <p className={`text-sm font-semibold mt-1.5 mb-5 ${priceDelta >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
                 {priceSign}{priceDelta.toFixed(1)}% asking price
               </p>
-              <div className="space-y-3 text-[13.5px] leading-relaxed text-slate-600 border-t border-slate-100 pt-5">
+              <div
+                className="space-y-3 text-[13.5px] leading-relaxed text-slate-600 border-t border-slate-100 pt-5"
+                role="region"
+                aria-label="Offer summary"
+                aria-live="polite"
+                aria-atomic="true"
+              >
                 {buildLetter().map((para, i) => (
                   <p key={i}>{para}</p>
                 ))}
@@ -434,8 +478,8 @@ export default function OfferComposer() {
               ].map(({ label, value, sub }) => (
                 <div key={label} className="bg-slate-50 rounded-xl border border-slate-100 p-3">
                   <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-1">{label}</p>
-                  <p className="text-sm font-semibold text-slate-900 leading-tight">{value}</p>
-                  {sub && <p className="text-[11px] text-slate-500 mt-0.5">{sub}</p>}
+                  <p className="text-sm font-semibold text-slate-900 leading-tight truncate">{value}</p>
+                  {sub && <p className="text-[11px] text-slate-500 mt-0.5 truncate">{sub}</p>}
                 </div>
               ))}
             </div>
@@ -447,9 +491,10 @@ export default function OfferComposer() {
               disabled={submitted}
               className={[
                 'w-full py-4 rounded-xl text-sm font-semibold uppercase tracking-wide transition-all',
+                'focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
                 submitted
-                  ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
-                  : 'bg-slate-900 text-white hover:bg-slate-800 active:scale-[0.98] cursor-pointer',
+                  ? 'bg-slate-200 text-slate-400 cursor-not-allowed focus-visible:ring-slate-300'
+                  : 'bg-slate-900 text-white hover:bg-slate-800 active:scale-[0.98] cursor-pointer focus-visible:ring-slate-700',
               ].join(' ')}
             >
               {submitted

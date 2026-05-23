@@ -76,7 +76,7 @@ export default function BackupOfferScreen() {
           <button
             type="button"
             onClick={handleCompose}
-            className="w-full bg-slate-900 text-white py-4 rounded-xl text-sm font-semibold uppercase tracking-wide hover:bg-slate-800 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-3"
+            className="w-full bg-slate-900 text-white py-4 rounded-xl text-sm font-semibold uppercase tracking-wide hover:bg-slate-800 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-700 focus-visible:ring-offset-2"
           >
             Compose Backup Offer
             <ArrowRight className="w-4 h-4" strokeWidth={2.5} />
@@ -84,7 +84,7 @@ export default function BackupOfferScreen() {
           <button
             type="button"
             onClick={() => setPhase('end')}
-            className="text-sm text-slate-400 hover:text-slate-600 transition-colors cursor-pointer py-2"
+            className="text-sm text-slate-400 hover:text-slate-600 transition-colors cursor-pointer py-2 focus:outline-none focus-visible:underline focus-visible:text-slate-600"
           >
             Skip — see my final score
           </button>

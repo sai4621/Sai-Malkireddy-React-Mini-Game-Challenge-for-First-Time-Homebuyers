@@ -151,7 +151,7 @@ export default function PreapprovalScreen() {
             className={[
               'w-full max-w-xs py-4 rounded-xl text-sm font-semibold tracking-wide uppercase transition-all duration-150',
               selected
-                ? 'bg-slate-900 text-white hover:bg-slate-800 active:scale-[0.98] cursor-pointer'
+                ? 'bg-slate-900 text-white hover:bg-slate-800 active:scale-[0.98] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-700 focus-visible:ring-offset-2'
                 : 'bg-slate-200 text-slate-400 cursor-not-allowed',
             ].join(' ')}
           >

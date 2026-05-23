@@ -48,7 +48,7 @@ export default function StartScreen() {
         <button
           type="button"
           onClick={() => setPhase('preapproval')}
-          className="inline-flex items-center gap-3 bg-slate-900 text-white text-base font-semibold px-10 py-4 rounded-xl hover:bg-slate-800 active:scale-[0.98] transition-all cursor-pointer"
+          className="inline-flex items-center gap-3 bg-slate-900 text-white text-base font-semibold px-10 py-4 rounded-xl hover:bg-slate-800 active:scale-[0.98] transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-700 focus-visible:ring-offset-2"
         >
           Start
           <ArrowRight className="w-4 h-4" strokeWidth={2.5} />

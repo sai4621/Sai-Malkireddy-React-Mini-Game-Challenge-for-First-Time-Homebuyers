@@ -167,6 +167,17 @@ export default function RevealScreen() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  // Preload the next round's house image so there's no flash on HouseIntroCard
+  useEffect(() => {
+    const nextRound = rounds[currentRound + 1]
+    if (!nextRound?.houseId) return
+    const nextHouse = houses.find((h) => h.id === nextRound.houseId)
+    if (!nextHouse?.imageUrl) return
+    const img = new window.Image()
+    img.src = nextHouse.imageUrl
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   if (!result) return null
 
   const playerWon       = result.winnerId === 'player'
@@ -219,7 +230,8 @@ export default function RevealScreen() {
         </div>
 
         {/* ── Offers table ────────────────────────────────────────────── */}
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="overflow-x-auto -mx-2 px-2">
+        <div className="min-w-[640px] bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
           <HeaderRow />
           {rows.map((row, i) => {
             const scoreEntry = result.allScores.find((s) => s.id === row.id)
@@ -233,6 +245,7 @@ export default function RevealScreen() {
               />
             )
           })}
+        </div>
         </div>
 
         {/* ── Seller's reasoning ──────────────────────────────────────── */}
@@ -290,7 +303,7 @@ export default function RevealScreen() {
           <button
             type="button"
             onClick={handleContinue}
-            className="inline-flex items-center gap-3 bg-slate-900 text-white px-10 py-4 rounded-xl text-sm font-semibold uppercase tracking-wide hover:bg-slate-800 active:scale-[0.98] transition-all cursor-pointer"
+            className="inline-flex items-center gap-3 bg-slate-900 text-white px-10 py-4 rounded-xl text-sm font-semibold uppercase tracking-wide hover:bg-slate-800 active:scale-[0.98] transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-700 focus-visible:ring-offset-2"
           >
             {hasConsequences
               ? 'Continue'

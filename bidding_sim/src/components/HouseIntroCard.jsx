@@ -77,7 +77,7 @@ export default function HouseIntroCard() {
         </div>
 
         {/* Property stats */}
-        <div className="grid grid-cols-4 gap-3 mb-6">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
           <StatCard Icon={BedDouble}    value={house.beds}                    label="Beds"  />
           <StatCard Icon={Bath}         value={house.baths}                   label="Baths" />
           <StatCard Icon={Ruler}        value={house.sqft.toLocaleString()}   label="Sq ft" />
@@ -132,7 +132,7 @@ export default function HouseIntroCard() {
         <button
           type="button"
           onClick={() => setPhase('compose')}
-          className="w-full bg-slate-900 text-white py-4 rounded-xl text-sm font-semibold uppercase tracking-wide hover:bg-slate-800 active:scale-[0.98] transition-all cursor-pointer"
+          className="w-full bg-slate-900 text-white py-4 rounded-xl text-sm font-semibold uppercase tracking-wide hover:bg-slate-800 active:scale-[0.98] transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-700 focus-visible:ring-offset-2"
         >
           Make an Offer
         </button>
