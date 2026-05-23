@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { User, BookOpen, ArrowRight } from 'lucide-react'
 import useGameStore from '../store/gameStore'
@@ -127,6 +127,7 @@ export default function RevealScreen() {
   const financingPosture = useGameStore((s) => s.financingPosture)
   const currentOffer     = useGameStore((s) => s.currentOffer)
   const advanceRound     = useGameStore((s) => s.advanceRound)
+  const submitOffer      = useGameStore((s) => s.submitOffer)
   const setPhase         = useGameStore((s) => s.setPhase)
 
   const round  = rounds[currentRound]
@@ -136,8 +137,12 @@ export default function RevealScreen() {
   const [result, setResult]                 = useState(null)
   const [competitorOffers, setCompOffers]   = useState([])
   const [consequences, setConsequences]     = useState({ hiddenCosts: 0, consequenceText: null })
+  const didSubmit = useRef(false)
 
   useEffect(() => {
+    if (didSubmit.current) return
+    didSubmit.current = true
+
     // Generate competitor offers fresh for this round
     const entries = round.competitors.map((archetype) => {
       const c = competitorData.find((x) => x.archetype === archetype)
@@ -148,9 +153,17 @@ export default function RevealScreen() {
     const r = determineWinner(currentOffer, entries, seller, house, financingPosture)
     setResult(r)
 
-    if (r.winnerId === 'player') {
-      setConsequences(evaluateConsequences(currentOffer, house))
-    }
+    const cons = r.winnerId === 'player'
+      ? evaluateConsequences(currentOffer, house)
+      : { hiddenCosts: 0, consequenceText: null }
+    setConsequences(cons)
+
+    submitOffer({
+      won:             r.winnerId === 'player',
+      hiddenCosts:     cons.hiddenCosts,
+      consequenceText: cons.consequenceText,
+      timedOut:        currentOffer.timedOut ?? false,
+    })
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -183,6 +196,8 @@ export default function RevealScreen() {
   function handleContinue() {
     if (hasConsequences) {
       setPhase('consequence')
+    } else if (isLastRound && !playerWon) {
+      setPhase('backup-offer')
     } else {
       advanceRound()
       setPhase(isLastRound ? 'end' : 'house-intro')
@@ -277,7 +292,13 @@ export default function RevealScreen() {
             onClick={handleContinue}
             className="inline-flex items-center gap-3 bg-slate-900 text-white px-10 py-4 rounded-xl text-sm font-semibold uppercase tracking-wide hover:bg-slate-800 active:scale-[0.98] transition-all cursor-pointer"
           >
-            {hasConsequences ? 'Continue' : isLastRound ? 'See Final Score' : 'Next Round'}
+            {hasConsequences
+              ? 'Continue'
+              : isLastRound && !playerWon
+              ? 'Explore Backup Offer'
+              : isLastRound
+              ? 'See Final Score'
+              : 'Next Round'}
             <ArrowRight className="w-4 h-4" strokeWidth={2.5} />
           </button>
         </motion.div>

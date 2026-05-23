@@ -17,10 +17,13 @@ const useGameStore = create((set, get) => ({
   currentOffer: { ...initialOffer },
   totalHiddenCosts: 0,
   housesWon: 0,
+  backupMode: false,
 
   setPhase: (phase) => set({ phase }),
 
   setFinancingPosture: (posture) => set({ financingPosture: posture }),
+
+  setBackupMode: (v) => set({ backupMode: v }),
 
   updateOffer: (updates) =>
     set((state) => ({ currentOffer: { ...state.currentOffer, ...updates } })),
@@ -47,6 +50,7 @@ const useGameStore = create((set, get) => ({
       currentOffer: { ...initialOffer },
       totalHiddenCosts: 0,
       housesWon: 0,
+      backupMode: false,
     }),
 }))
 

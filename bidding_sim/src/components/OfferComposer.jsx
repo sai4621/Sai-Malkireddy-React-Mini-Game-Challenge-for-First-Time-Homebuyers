@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { Clock, AlertTriangle } from 'lucide-react'
+import { Clock, AlertTriangle, Info } from 'lucide-react'
 import useGameStore from '../store/gameStore'
 import houses from '../data/houses'
 import rounds from '../data/rounds'
@@ -85,7 +85,10 @@ function LeverRow({ label, hint, children }) {
 export default function OfferComposer() {
   const currentRound     = useGameStore((s) => s.currentRound)
   const financingPosture = useGameStore((s) => s.financingPosture)
+  const backupMode       = useGameStore((s) => s.backupMode)
   const updateOffer      = useGameStore((s) => s.updateOffer)
+  const submitOffer      = useGameStore((s) => s.submitOffer)
+  const setBackupMode    = useGameStore((s) => s.setBackupMode)
   const setPhase         = useGameStore((s) => s.setPhase)
 
   const round    = rounds[currentRound]
@@ -140,9 +143,14 @@ export default function OfferComposer() {
     }
 
     updateOffer(offer)
-    // eslint-disable-next-line no-console
-    console.log('[OfferComposer] submitted offer:', JSON.stringify(offer, null, 2))
-    setPhase('reveal')
+
+    if (backupMode) {
+      submitOffer({ won: true, isBackup: true, hiddenCosts: 0, consequenceText: null })
+      setBackupMode(false)
+      setPhase('end')
+    } else {
+      setPhase('reveal')
+    }
   }
 
   // Update ref every render so the timer callback always has fresh state
@@ -242,6 +250,18 @@ export default function OfferComposer() {
 
           {/* ── Levers column ─────────────────────────────────────────────── */}
           <div className="lg:col-span-7 bg-white rounded-2xl border border-slate-200 shadow-sm px-6 py-1">
+
+            {backupMode && (
+              <div className="bg-blue-50 border border-blue-200 rounded-xl px-5 py-4 mt-5 mb-1 flex items-start gap-3">
+                <Info className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" strokeWidth={1.75} />
+                <div>
+                  <p className="text-sm font-semibold text-blue-900">Backup Offer Mode</p>
+                  <p className="text-xs text-blue-700 mt-0.5 leading-relaxed">
+                    Compose your best offer. If the primary deal falls through, this activates automatically.
+                  </p>
+                </div>
+              </div>
+            )}
 
             {/* a) Offer Price */}
             <LeverRow
@@ -432,7 +452,11 @@ export default function OfferComposer() {
                   : 'bg-slate-900 text-white hover:bg-slate-800 active:scale-[0.98] cursor-pointer',
               ].join(' ')}
             >
-              {submitted ? 'Offer Submitted' : 'Submit Offer'}
+              {submitted
+                ? 'Offer Submitted'
+                : backupMode
+                ? 'Submit Backup Offer'
+                : 'Submit Offer'}
             </button>
 
           </div>

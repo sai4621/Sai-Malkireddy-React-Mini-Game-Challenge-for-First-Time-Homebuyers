@@ -201,7 +201,7 @@ export function evaluateConsequences(winningOffer, house) {
   let   hiddenCosts   = 0
 
   // ── Inspection waived ───────────────────────────────────────────────────────
-  if (!contingencies.includes('inspection') && house.hiddenIssues?.length > 0) {
+  if (!contingencies.includes('inspection') && !contingencies.includes('inspection-3day') && house.hiddenIssues?.length > 0) {
     const total = house.hiddenIssues.reduce((sum, h) => sum + h.repairCost, 0)
     hiddenCosts += total
 
