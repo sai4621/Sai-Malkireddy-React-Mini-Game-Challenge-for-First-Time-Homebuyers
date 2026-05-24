@@ -12,10 +12,10 @@ const houses = [
     yearBuilt: 1997,
     daysOnMarket: 6,
     imageUrl:
-      'https://images.unsplash.com/photo-1568605467-a674d80b7b56?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=800&q=80',
     listingDescription:
       'Move-in-ready colonial with gleaming hardwoods and an updated eat-in kitchen. ' +
-      'The owners have already relocated for a new position and the home is vacant — ' +
+      'The owners have already relocated for a new position. The home is vacant: ' +
       'immediate occupancy available. All furnishings negotiable; sellers are motivated ' +
       'and prefer a quick, uncomplicated close.',
     hiddenIssues: [
@@ -36,7 +36,7 @@ const houses = [
       'https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=800&q=80',
     listingDescription:
       'Lovingly maintained craftsman bungalow owned by the same family for 31 years. ' +
-      'The backyard vegetable garden — established over two decades — conveys with the home. ' +
+      'The backyard vegetable garden (established over two decades) conveys with the home. ' +
       'The sellers are not in a financial rush; they are looking for buyers who will ' +
       'appreciate what has been built here and care for it accordingly.',
     hiddenIssues: [
@@ -62,11 +62,11 @@ const houses = [
       'Offered on behalf of the estate of Dorothy M. Callahan, this classic ranch has been ' +
       'in the family since it was built. Sold strictly as-is; no seller disclosures are ' +
       'available and no repairs or credits will be provided. The executor requests a clean, ' +
-      'uncomplicated offer — cash or conventional financing strongly preferred.',
+      'uncomplicated offer. Cash or conventional financing strongly preferred.',
     hiddenIssues: [
       { issue: 'Asbestos floor tiles in basement (requires licensed abatement)', repairCost: 7200 },
       { issue: 'Active mold growth behind master bath tile wall', repairCost: 9500 },
-      { issue: 'Roof at end of serviceable life — full replacement required', repairCost: 14000 },
+      { issue: 'Roof at end of serviceable life. Full replacement required.', repairCost: 14000 },
     ],
   },
   {
@@ -87,7 +87,7 @@ const houses = [
       'The seller is under no time pressure and will wait for a buyer who recognizes the value.',
     hiddenIssues: [
       {
-        issue: 'Rear deck addition built without permit — buyer assumes liability to permit or remove',
+        issue: 'Rear deck addition built without permit. Buyer assumes liability to permit or remove.',
         repairCost: 2500,
       },
     ],
@@ -104,7 +104,7 @@ const houses = [
     imageUrl:
       'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=800&q=80',
     listingDescription:
-      'Fully renovated in 2024 — new roof, new HVAC, new plumbing fixtures, and a ' +
+      'Fully renovated in 2024: new roof, new HVAC, new plumbing fixtures, and a ' +
       'kitchen that looks straight out of a design magazine. The selling entity is an LLC ' +
       'seeking a straightforward transaction: competitive price, minimal contingencies, ' +
       'and a buyer with the financing to close with confidence. Serious inquiries only.',
@@ -138,7 +138,7 @@ const houses = [
       'the lender will consider.',
     hiddenIssues: [
       { issue: 'Extensive water intrusion and rot in crawl space subfloor', repairCost: 18000 },
-      { issue: 'HVAC system non-functional — full replacement required', repairCost: 7500 },
+      { issue: 'HVAC system non-functional. Full replacement required.', repairCost: 7500 },
       { issue: 'Deferred maintenance across roof, gutters, and exterior siding', repairCost: 11000 },
     ],
   },

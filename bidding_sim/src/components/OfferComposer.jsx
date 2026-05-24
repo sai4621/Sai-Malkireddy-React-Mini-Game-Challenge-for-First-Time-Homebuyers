@@ -31,7 +31,7 @@ function EscalationCapSlider({ offerPrice, askingPrice, escalationCap, setEscala
   return (
     <div className="mt-5">
       <p className="text-xs text-slate-500 mb-2">
-        Beat any competing offer by $2,500 — up to a cap of:
+        Beat any competing offer by $2,500, up to a cap of:
       </p>
       <RangeSlider
         label="Escalation clause cap"
@@ -48,7 +48,7 @@ function EscalationCapSlider({ offerPrice, askingPrice, escalationCap, setEscala
       </div>
       {capAutoAdjusted && (
         <p className="text-xs text-amber-600 mt-2" role="alert">
-          Cap adjusted — must be at least $2,500 above your offer price.
+          Cap adjusted: must be at least $2,500 above your offer price.
         </p>
       )}
     </div>
@@ -119,7 +119,6 @@ export default function OfferComposer() {
       contingencies,
       closingDays,
       escalationClause: escalationOn ? { cap: escalationCap, increment: 2500 } : null,
-      personalLetter:   false,
       financingType:    financingPosture === 'cash' ? 'cash' : 'conventional',
       timedOut:         isAutoSubmit,
     }
@@ -173,7 +172,7 @@ export default function OfferComposer() {
     ]
 
     const paras = [
-      `I am offering ${fmt(offerPrice)} — ${dir} the asking price of ${fmt(house.askingPrice)}.`,
+      `I am offering ${fmt(offerPrice)}, ${dir} the asking price of ${fmt(house.askingPrice)}.`,
       `My earnest money deposit is ${fmt(earnestAmt)} (${earnestPct}%), with a ${closingDays}-day closing timeline.`,
       `Terms: ${terms.join(', ')}.`,
     ]

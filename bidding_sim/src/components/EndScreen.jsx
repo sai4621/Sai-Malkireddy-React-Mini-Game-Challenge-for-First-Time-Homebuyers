@@ -75,21 +75,21 @@ function evaluateTactics(storeRounds, financingPosture) {
       tactic: 'Earnest Money',
       status: t3,
       good:  `Strong average earnest deposit (${avgEarnestPct.toFixed(1)}%) signaled serious intent.`,
-      under: `Moderate earnest deposits (${avgEarnestPct.toFixed(1)}%) — sellers noticed the hesitation.`,
+      under: `Moderate earnest deposits (${avgEarnestPct.toFixed(1)}%). Sellers noticed the hesitation.`,
       bad:   `Low average earnest money (${avgEarnestPct.toFixed(1)}%) raised red flags.`,
     },
     {
       tactic: 'Contingency Strategy',
       status: t4,
       good:  'You waived selectively and protected yourself when it mattered.',
-      under: 'You kept all contingencies — safe, but not competitive in hot rounds.',
+      under: 'You kept all contingencies. Safe, but not competitive in hot rounds.',
       bad:   'Waiving contingencies without protection cost you money after closing.',
     },
     {
       tactic: 'Responsiveness Under Pressure',
       status: t5,
       good:  'You submitted every timed offer before the clock ran out.',
-      under: 'You let the clock run on one timed round — pressure is part of the game.',
+      under: 'You let the clock run on one timed round. Pressure is part of the game.',
       bad:   'Multiple auto-submits mean you lost control under time pressure.',
     },
     {
@@ -97,8 +97,8 @@ function evaluateTactics(storeRounds, financingPosture) {
       status: t6,
       good:  usedBackup
         ? 'You understood the backup offer option and used your leverage.'
-        : 'You won round 6 outright — the backup tactic wasn\'t needed.',
-      under: 'You won outright — the backup tactic wasn\'t needed.',
+        : 'You won round 6 outright. The backup tactic wasn\'t needed.',
+      under: 'You won outright. The backup tactic wasn\'t needed.',
       bad:   'You let round 6 end without exploring a backup offer position.',
     },
   ]
@@ -151,9 +151,9 @@ export default function EndScreen() {
   const badCount  = tactics.filter((t) => t.status === 'bad').length
 
   const archetype =
-    totalHiddenCosts > 15000       ? { name: 'The Overbidder',      desc: 'Enthusiasm is great — but every skipped contingency has a price.' }         :
+    totalHiddenCosts > 15000       ? { name: 'The Overbidder',      desc: 'Enthusiasm is great, but every skipped contingency has a price.' }         :
     goodCount >= 5                 ? { name: 'The Strategist',       desc: 'You read the market, the seller, and the clock. That\'s rare.' }             :
-    goodCount >= 3 && badCount <= 1 ? { name: 'The Calculated Risk', desc: 'Smart moves, a few blind spots. Ready for the real thing — with a good agent.' } :
+    goodCount >= 3 && badCount <= 1 ? { name: 'The Calculated Risk', desc: 'Smart moves, a few blind spots. Ready for the real thing, with a good agent.' } :
                                      { name: 'The Cautious Buyer',   desc: 'You played it safe. In a hot market, safe is expensive.' }
 
   return (

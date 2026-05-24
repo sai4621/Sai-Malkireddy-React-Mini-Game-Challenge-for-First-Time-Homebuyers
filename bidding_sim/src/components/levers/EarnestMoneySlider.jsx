@@ -14,7 +14,7 @@ export default function EarnestMoneySlider({ value, onChange, offerPrice }) {
       />
       <div className="flex justify-between items-baseline mt-2">
         <span className="text-xs text-slate-400">1%</span>
-        <span className="text-sm font-semibold text-slate-900">{value}% — {fmt(earnestAmt)}</span>
+        <span className="text-sm font-semibold text-slate-900">{value}% ({fmt(earnestAmt)})</span>
         <span className="text-xs text-slate-400">10%</span>
       </div>
     </>

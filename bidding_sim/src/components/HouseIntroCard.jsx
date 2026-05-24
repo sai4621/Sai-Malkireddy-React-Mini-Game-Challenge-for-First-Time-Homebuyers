@@ -12,7 +12,7 @@ const TACTIC_INFO = {
   'contingency-waiver': { label: 'Contingency Waiver',  tip: 'Every contingency is a door you leave open to exit.' },
   'escalation-clause':  { label: 'Escalation Clause',   tip: 'Signal serious intent without blindly overpaying.' },
   'earnest-money':      { label: 'Earnest Money',        tip: 'Skin in the game tells a seller you won\'t walk.' },
-  'full-tactics':       { label: 'All Tactics',          tip: 'Apply everything — the seller is watching closely.' },
+  'full-tactics':       { label: 'All Tactics',          tip: 'Apply everything. The seller is watching closely.' },
 }
 
 function StatCard({ Icon, value, label }) {
@@ -35,8 +35,8 @@ export default function HouseIntroCard() {
   const competitorCount = round.competitors.length
   const marketLabel =
     competitorCount >= 3
-      ? `Hot market — ${competitorCount} competing offers expected`
-      : `Competitive market — ${competitorCount} other offers expected`
+      ? `Hot market: ${competitorCount} competing offers expected`
+      : `Competitive market: ${competitorCount} other offers expected`
 
   const tactic = TACTIC_INFO[round.focusTactic] ?? { label: round.focusTactic, tip: '' }
 

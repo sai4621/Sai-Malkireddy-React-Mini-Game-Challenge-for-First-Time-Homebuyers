@@ -78,7 +78,7 @@ export default function ConsequenceScreen() {
             Why this happened
           </p>
           <p className="text-sm font-semibold text-amber-900 leading-relaxed">
-            This is why the {contingencyType} exists — it's not just paperwork. It's your financial protection.
+            This is why the {contingencyType} exists. It's not just paperwork; it's your financial protection.
           </p>
         </motion.div>
 

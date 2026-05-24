@@ -6,7 +6,6 @@ const initialOffer = {
   contingencies: [],
   closingDays: 30,
   escalationClause: null,
-  personalLetter: false,
 }
 
 const useGameStore = create((set, get) => ({

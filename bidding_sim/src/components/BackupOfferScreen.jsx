@@ -22,13 +22,13 @@ export default function BackupOfferScreen() {
           className="text-center"
         >
           <p className="text-xs font-semibold tracking-[0.18em] uppercase text-slate-400 mb-2">
-            Round 6 — You Didn't Win
+            Round 6: You Didn't Win
           </p>
           <h1 className="text-3xl font-bold tracking-tight text-slate-900 mb-2">
             But the Door Isn't Closed
           </h1>
           <p className="text-slate-500 text-sm leading-relaxed max-w-sm mx-auto">
-            The winning offer fell through — and the seller's agent just called your agent.
+            The winning offer fell through. The seller's agent just called your agent.
           </p>
         </motion.div>
 
@@ -45,7 +45,7 @@ export default function BackupOfferScreen() {
             <div>
               <p className="text-base font-semibold text-slate-900 mb-1">What's a Backup Offer?</p>
               <p className="text-sm text-slate-600 leading-relaxed">
-                A backup offer is a legally binding contract that activates automatically if the primary deal falls through — due to a failed inspection, financing issue, or cold feet.
+                A backup offer is a legally binding contract that activates automatically if the primary deal falls through (due to a failed inspection, financing issue, or cold feet).
               </p>
             </div>
           </div>
@@ -54,7 +54,7 @@ export default function BackupOfferScreen() {
             <p className="text-sm font-semibold text-slate-800">Why submit one?</p>
             <ul className="space-y-2.5">
               {[
-                'You get the home if the first buyer walks — no re-listing, no new bidding war.',
+                'You get the home if the first buyer walks. No re-listing, no new bidding war.',
                 'Sellers often accept backup offers at a slight discount to guarantee a safety net.',
                 'Your position is stronger now: the seller is motivated, and you\'re already in the room.',
               ].map((item) => (
@@ -86,7 +86,7 @@ export default function BackupOfferScreen() {
             onClick={() => setPhase('end')}
             className="text-sm text-slate-400 hover:text-slate-600 transition-colors cursor-pointer py-2 focus:outline-none focus-visible:underline focus-visible:text-slate-600"
           >
-            Skip — see my final score
+            Skip to final score
           </button>
         </motion.div>
 

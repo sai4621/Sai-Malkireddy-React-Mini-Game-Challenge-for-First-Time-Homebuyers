@@ -14,7 +14,7 @@ const competitors = [
   {
     archetype: 'cashBuyer',
     name: 'Meridian Capital Group',
-    description: 'An all-cash buyer — no appraisal risk, no financing contingency, fast close.',
+    description: 'An all-cash buyer: no appraisal risk, no financing contingency, fast close.',
     generateOffer(house) {
       const price = pct(house.askingPrice, 0.99, 1.03)
       return {
@@ -23,7 +23,6 @@ const competitors = [
         contingencies: [],
         closingDays: Math.round(rand(14, 18)),
         escalationClause: null,
-        personalLetter: false,
         financingType: 'cash',
       }
     },
@@ -32,7 +31,7 @@ const competitors = [
   {
     archetype: 'family',
     name: 'The Ortega Family',
-    description: 'A growing family buying their forever home — emotionally invested, conventionally financed.',
+    description: 'A growing family buying their forever home. Emotionally invested, conventionally financed.',
     generateOffer(house) {
       const price = pct(house.askingPrice, 0.96, 1.01)
       return {
@@ -41,7 +40,6 @@ const competitors = [
         contingencies: ['inspection', 'financing', 'appraisal'],
         closingDays: Math.round(rand(35, 45)),
         escalationClause: null,
-        personalLetter: true,
         financingType: 'conventional',
       }
     },
@@ -60,7 +58,6 @@ const competitors = [
         contingencies: [],
         closingDays: Math.round(rand(21, 30)),
         escalationClause: { cap, increment: 2000 },
-        personalLetter: true,
         financingType: 'conventional',
       }
     },
@@ -78,7 +75,6 @@ const competitors = [
         contingencies: ['inspection', 'financing', 'appraisal', 'sale-of-home'],
         closingDays: Math.round(rand(45, 60)),
         escalationClause: null,
-        personalLetter: false,
         financingType: 'fha',
       }
     },
@@ -87,7 +83,7 @@ const competitors = [
   {
     archetype: 'sophisticated',
     name: 'The Whitmore Trust',
-    description: 'An experienced buyer — pre-approved, strategic escalation, clean but keeps financing.',
+    description: 'An experienced buyer: pre-approved, strategic escalation, clean but keeps financing.',
     generateOffer(house) {
       const price = pct(house.askingPrice, 1.01, 1.05)
       const cap = Math.round(house.askingPrice * rand(1.07, 1.10))
@@ -97,7 +93,6 @@ const competitors = [
         contingencies: ['financing'],
         closingDays: Math.round(rand(21, 28)),
         escalationClause: { cap, increment: 2500 },
-        personalLetter: false,
         financingType: 'conventional',
       }
     },

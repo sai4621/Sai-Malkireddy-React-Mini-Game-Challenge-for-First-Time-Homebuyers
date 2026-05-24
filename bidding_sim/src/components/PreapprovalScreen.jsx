@@ -68,7 +68,7 @@ export default function PreapprovalScreen() {
         {/* Header */}
         <div className="text-center mb-12">
           <p className="text-xs font-semibold tracking-[0.18em] uppercase text-blue-700 mb-4">
-            Round 0 — Financing Posture
+            Round 0: Financing Posture
           </p>
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900 leading-tight">
             Before you start house hunting,<br className="hidden sm:block" /> how prepared are you?

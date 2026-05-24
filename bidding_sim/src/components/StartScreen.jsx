@@ -30,8 +30,8 @@ export default function StartScreen() {
           </p>
           <ol className="space-y-4">
             {[
-              'Each round you receive a real listing with clues buried in the description about what the seller actually wants — speed, certainty, price, or something else entirely.',
-              'You compose a competitive offer — choosing your price, earnest money, contingencies, and closing timeline — then watch it scored against real competing buyers with their own strategies.',
+              'Each round you receive a real listing with clues buried in the description about what the seller actually wants: speed, certainty, price, or something else entirely.',
+              'You compose a competitive offer (price, earnest money, contingencies, and closing timeline), then watch it scored against real competing buyers with their own strategies.',
               'Six rounds, six seller archetypes, six chances to learn what separates a winning offer from a beautiful second place.',
             ].map((sentence, i) => (
               <li key={i} className="flex gap-4">

@@ -287,7 +287,7 @@ export default function RevealScreen() {
                     </p>
                     <p className="text-base font-bold text-slate-900 mb-4">
                       {winnerName}
-                      <span className="font-normal text-slate-500 ml-2 text-sm">— {seller.displayName}</span>
+                      <span className="font-normal text-slate-500 ml-1 text-sm">({seller.displayName})</span>
                     </p>
                     <blockquote className="font-serif italic text-[15px] leading-[1.85] text-slate-600 border-l-2 border-slate-200 pl-5">
                       {seller.reasoning}
@@ -306,7 +306,7 @@ export default function RevealScreen() {
                 <BookOpen className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" strokeWidth={1.75} />
                 <div>
                   <p className="text-[11px] font-semibold tracking-[0.14em] uppercase text-blue-500 mb-1.5">
-                    What this taught you
+                    Lessons
                   </p>
                   <p className="text-[15px] font-semibold text-blue-900 leading-relaxed">
                     {seller.lesson}
